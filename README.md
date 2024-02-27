@@ -19,8 +19,8 @@ Introduction ...
 
 ## Software requirement
 
-* R version: 4.2.3
-* A list of some required R packages version:
+  * R version: 4.2.3
+  * A list of some required R packages version:
     * readxl 1.4.3
     * dplyr 1.0.10
     * stringi 1.7.8
@@ -39,8 +39,8 @@ Introduction ...
     * readr 2.1.2
     * tidyr 1.2.1
     * tibble 3.1.8
-* Python version: 3.10
-* A list of some required Python library versions:
+  * Python version: 3.10
+  * A list of some required Python library versions:
     * opencv-python~=4.8.1.78
     * numpy~=1.26.0
     * pandas~=2.1.1
@@ -53,14 +53,14 @@ Introduction ...
 
 ## Running sample
 
-1. Clone the repository.
+### 1. Clone the repository.
 
 ```commandline
 git clone https://github.com/zhuxubin1/machine_learning_for_microbe_identification
 cd machine_learning_for_microbe_identification
 ```
 
-2. Run xx_train.py to train the model and generate the result, or run xx_generate_result.py to generate the result directly.
+### 2. Run xx_train.py to train the model and generate the result, or run xx_generate_result.py to generate the result directly.
 
 ```commandline
 python Models/PCA_LDA/nine_merged/nine_merged_train.py

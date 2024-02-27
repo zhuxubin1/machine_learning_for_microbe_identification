@@ -19,8 +19,8 @@ Introduction ...
 
 ## Software requirement
 
-R version: 4.2.3
-A list of some required R packages version:
+  * R version: 4.2.3
+  * A list of some required R packages version:
     * readxl 1.4.3
     * dplyr 1.0.10
     * stringi 1.7.8

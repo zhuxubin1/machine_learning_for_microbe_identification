@@ -1,14 +1,16 @@
 # Script name: FigureS4.R
-# Purpose: Used to generate representational images required by Figure S4.
+# Purpose: The script is used to generate the results of the binary model evaluation
+#           in Figure S4. Includes model P-R bubble charts using Single data sets and
+#           Merged data sets.
 # Author: Zhu Xubin
 # Date Created: 2024-02-18
 
 
 # Load dependencies ----------------------
 
-library(ggplot2)
-library(dplyr)
-library(readxl)
+require(ggplot2)
+require(dplyr)
+require(readxl)
 source("toolbox.R")
 
 # Import Data ----------------------

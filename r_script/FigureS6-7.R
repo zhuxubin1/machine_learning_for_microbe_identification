@@ -1,16 +1,19 @@
 # Script name: FigureS6-7.R
-# Purpose: Used to generate representational images required by Figure S6 and S7.
+# Purpose: The script is used to generate the evaluation results of the dimensionality
+#           reduction models in Figure S6 and Figure S7. Includes LDA plots for models
+#           trained using Single and Merged datasets, and LDA plots for evaluating
+#           effects using hierarchical classification models at each classification level.
 # Author: Zhu Xubin
 # Date Created: 2024-02-18
 
 
 # Load dependencies ----------------------
 
-library(ggplot2)
-library(ggpubr)
-library(gridExtra)
-library(stringi)
-library(ggfortify)
+require(ggplot2)
+require(ggpubr)
+require(gridExtra)
+require(stringi)
+require(ggfortify)
 source("toolbox.R")
 
 # Import Data ----------------------

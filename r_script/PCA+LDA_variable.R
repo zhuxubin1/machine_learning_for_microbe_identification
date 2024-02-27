@@ -3,10 +3,11 @@
 # Author: Zhu Xubin
 # Date Created: 2024-02-18
 
-
+# LDA_color is a color bar for an LDA plot for a multi-classification model.
 LDA_color <- c('#1F77B4', '#D62728', '#2CA02C',
                '#9467BD', '#8C564B', '#E377C2',
                '#7F7F7F', '#BCBD22', '#17BECF', '#FF7F0E')
+
 order_color <- c('#1F77B4', '#D62728', '#2CA02C','#9467BD', '#b2b2b2')
 Bacillales_color <- c('#165682', '#5492bf', '#8ed2ff', '#b2b2b2')
 Enterobacteriales_color <- c('#ba2223', '#d46f50', '#ebac8c', '#ffe6d5', '#b2b2b2')

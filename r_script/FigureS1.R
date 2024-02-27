@@ -1,14 +1,17 @@
 # Script name: FigureS1.R
-# Purpose: Used to generate representational images required by Figure S1.
+# Purpose: The script was used to generate the results of microbial interaction 
+#           with AuNPs in Figure S1, including the histogram of hydrated particle
+#           size, the histogram of zeta potential, and the histogram of maximum 
+#           absorption wavelength.
 # Author: Zhu Xubin
 # Date Created: 2024-02-18
 
 
 # Load dependencies ----------------------
 
-library(ggplot2)
-library(readxl)
-library(dplyr)
+require(ggplot2)
+require(readxl)
+require(dplyr)
 source("toolbox.R")
 
 # Import Data ----------------------

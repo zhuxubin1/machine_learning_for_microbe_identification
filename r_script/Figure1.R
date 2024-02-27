@@ -1,5 +1,7 @@
 # Script name: Figure1.R
-# Purpose: Used to generate representational images required by Figure1.
+# Purpose: The script was used to generate AuNPs characterization images in Figure 1,
+#           including particle size histogram, UV-Vis absorption spectrum and zeta 
+#           potential histogram.
 # Author: Zhu Xubin
 # Date Created: 2024-02-15
 

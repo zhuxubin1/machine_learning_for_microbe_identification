@@ -1,5 +1,7 @@
 # Script name: Figure3.R
-# Purpose: Used to generate representational images required by Figure3.
+# Purpose: The script is used to generate the plot of the evaluation results of 
+#           the binary classification model in Figure 3, including the ROC curve,
+#           the error bar graph of AUROC and AUPR, and the bar chart of F1 scores.
 # Author: Zhu Xubin
 # Date Created: 2024-02-15
 

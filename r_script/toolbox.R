@@ -124,7 +124,7 @@ AuNPs_zeta_plot <- function(data){
     scale_y_continuous(limits = c(-45, 0),
                        breaks = seq(-40, 0, by = 10),
                        expand = c(0, 0)) +
-    geom_text(aes(label = Avg), vjust = c(4,3.5,2), size = 6)
+    geom_text(aes(label = Avg), vjust = c(4, 3.5, 2), size = 6)
   ggsave("plot/F1/F1_Zeta_plot.png", p, units = 'cm',
          width = 8, height = 12, dpi = 1200)
 }
@@ -156,6 +156,7 @@ Roc_curve <- function(ROC_1, ROC_3, d_color, s_color, s, c, abbr = ''){
   #   c: Microbial concentration corresponding to mapping data.
   #   abbr: Microbial abbreviations corresponding to mapping data. 
   
+  # Assign the same color to ROC curves for Single data.
   if (s == 'xBlank') {
     color_1 <- "#E28829"
     color_2 <- "#FFE0B7"
@@ -165,17 +166,19 @@ Roc_curve <- function(ROC_1, ROC_3, d_color, s_color, s, c, abbr = ''){
     color_2 <- "#bbbbbb"
   }
   
-  roc2_1 <- roc(ROC_1$situation, ROC_1$probability, levels=c(0,1), direction=">")
-  roc2_3 <- roc(ROC_3$situation, ROC_3$probability, levels=c(0,1), direction=">")
+  # Generate roc curve objects.
+  roc2_1 <- roc(ROC_1$situation, ROC_1$probability, levels=c(0, 1), direction = ">")
+  roc2_3 <- roc(ROC_3$situation, ROC_3$probability, levels=c(0, 1), direction = ">")
   
+  # Get the AUROC value.
   auc2_1 <- auc(roc2_1)[1]
   auc2_3 <- auc(roc2_3)[1]
   auc2_text_1 <- sprintf("AUC(Single): %.2f", round(auc2_1, 4))
   auc2_text_3 <- sprintf("AUC(Merged): %.2f", round(auc2_3, 4))
   
+  # Calculate 95% confidence intervals.
   ci_1 <- ci(roc2_1)
   ci_3 <- ci(roc2_3)
-  
   roc_list <- list(roc2_1, roc2_3)
   ci.list <- lapply(roc_list, ci.se, specificities = seq(0, 1, l = 25))
   dat.ci.list <- lapply(ci.list, function(ciobj) 
@@ -184,7 +187,7 @@ Roc_curve <- function(ROC_1, ROC_3, d_color, s_color, s, c, abbr = ''){
                upper = ciobj[, 3]))
   
   p <- ggroc(roc_list, size = 1) +
-    geom_segment(aes(x = 1, y = 0, xend = 0, yend = 1),colour = 'grey', 
+    geom_segment(aes(x = 1, y = 0, xend = 0, yend = 1), colour = 'grey', 
                  linetype = 'dashed') + 
     scale_color_manual(values = c(color_1, d_color)) +
     annotate("text", x = 0.28, y = 0.05, label = auc2_text_1, size = 5) + 
@@ -196,7 +199,9 @@ Roc_curve <- function(ROC_1, ROC_3, d_color, s_color, s, c, abbr = ''){
           axis.text = element_text(face = "bold", size = 12.5),   
           plot.title = element_text(face = "bold", size = 14),
           legend.position = "none") +
-    labs(title = abbr,x = "FPR", y = "TPR")
+    labs(title = abbr, x = "FPR", y = "TPR")
+  
+  # Add a shaded area of the confidence interval on the graph.
   p1 <- p + geom_ribbon(data = dat.ci.list[[1]], 
                         aes(x = x, ymin = lower, ymax = upper),
                         fill = color_2, alpha = 0.5, inherit.aes = F) +
@@ -205,7 +210,7 @@ Roc_curve <- function(ROC_1, ROC_3, d_color, s_color, s, c, abbr = ''){
                 fill = s_color, alpha = 0.5, inherit.aes = F)
   
   image_name = sprintf("plot/F3/F3_ROC_%s_%s.png", s, c)
-  ggsave(filename = image_name ,p1 , width = 4, height = 4,
+  ggsave(filename = image_name , p1, width = 4, height = 4,
          units = "in", dpi = 1200)
 }
 
@@ -220,14 +225,18 @@ AUROC_AUPR_errorbar <- function(df, plot_type, data_type) {
   #   df: AUROC or AUPR data after 30 fold cross-validation.
   #   plot_type: Types of error bar graphs, including AUROC and AUPR.
   #   data_type: Type of graph data, including Single and Merged.
-
+  
+  # Color bars for error bars and spaced background blocks.
   errorbar_color <- c("#FE8600", "#FEB705", "#219EBC", "#034C75")
   background_color <- case_when(data_type == "Single" ~ c("#EFE4B0", "#FFFFFF"),
                                 data_type == "Merged" ~ c("#C8BFE7", "#FFFFFF"))
   
-  
+  # Sieve out the blank group.
   df <- df %>% filter(target != "xBlank")
   
+  # Get the mean, standard deviation, and confidence interval of AUROC
+  # or AUPR for each class of model. N is the number of folds for each
+  # type of model.
   N <- 30
   end <- 5 + N - 1 
   df$avgValue <- rowMeans(df[, 5:end])
@@ -236,18 +245,24 @@ AUROC_AUPR_errorbar <- function(df, plot_type, data_type) {
   conf.interval = 0.95
   ciMult <- qt(conf.interval/2 + .5, 29)
   df$ci <- df$se * ciMult
+  
   df$concentration <- factor(df$concentration, 
                              levels = c("10^4", "10^5", "10^6", "all"))
   
+  # Place the coordinate range and color distribution of the spaced
+  # background color blocks into a data frame.
   bar_data <- data.frame(x = seq(2.5, 37.5, by = 4), y = rep(1, 9),
                          color = c(rep(c("A", "B"), 4), "A"))
   
   ggplot(df, aes(x = 1:nrow(df), y = avgValue)) +
+    
+    # Generates an interval background color block.
     geom_bar(data = bar_data, aes(x = x, y = 1, fill = color),
              stat = "identity", width = 4, 
              show.legend = FALSE, alpha = 0.3) +
     scale_fill_manual(values = background_color) +
     
+    # Replace the new color bar and generate the error bar diagram.
     new_scale_color() + 
     geom_point(size = 2.5, aes(col = concentration)) +
     scale_color_manual(values = errorbar_color, 
@@ -269,7 +284,7 @@ AUROC_AUPR_errorbar <- function(df, plot_type, data_type) {
     labs(color = "Concentration(CFU/mL)") +
     
     theme(text = element_text(family = "sans"),
-      axis.text.x = element_text(size = 15, vjust = 1),
+          axis.text.x = element_text(size = 15, vjust = 1),
           plot.title = element_text(hjust = 0.5),
           axis.title.x = element_text(face = "bold"),
           axis.title.y = element_text(face = "bold"),
@@ -292,12 +307,17 @@ F1_barplot <- function(df, s, c, abbr = '') {
   #   c: The data correspond to microbial concentrations.
   #   abbr: Microbial abbreviations corresponding to mapping data. 
   
+  # Specifies the color for the bar chart. The first value of the
+  # fill_color vector is given to the Merged model generated from
+  # the dataset. The second value is assigned to the model generated
+  # by the Single dataset.
   if (s == 'xBlank') {
     fill_color <- c("#8FB4D8", "#FFE0B7")
   }
   else {
     fill_color <- c("#8bb2d4", "#bbbbbb")
   }
+  
   p <- ggplot(df, aes(x = number_of_pictures, y = F1_score, 
                       fill = number_of_pictures)) +
     geom_bar(stat = "identity", width = 0.5) +
@@ -337,6 +357,8 @@ F1_multi_barplot <- function(df, model_type) {
   #   model_type: The type of model, namely PCA+LDA tandem dimension
   #               reduction model (PCA+LDA) or Random forest model (RF).
   
+  # Color bars are specified for F1 scores bar plots according to different
+  # model types.
   if (model_type == "PCA+LDA") {
     color_bar <- c("#BCE9FF", "#8ABFDA", "#5797B6", "#167094")
     }
@@ -419,7 +441,8 @@ F1_Hierarchical_barplot <- function(data) {
 
 # Figure S1 ------------------------------
 
-set_theme <- theme(
+# Specify theme options for the three graphs in Figure S1.
+set_theme_FS1 <- theme(
   text = element_text(face = "bold", family = 'sans'),
   legend.title = element_blank(),
   axis.text = element_text(size = 10),
@@ -446,7 +469,7 @@ size_comparison_histogram <- function(df) {
     scale_fill_manual(values = color_scale) +
     scale_y_continuous(expand = c(0, 0), limits = c(0, 10000)) +
     theme_bw() +
-    set_theme
+    set_theme_FS1
   ggsave("plot/FS1/FS1_Size_plot.png", p, units = "in", width = 10,
          height = 5, dpi = 1200)
 }
@@ -468,7 +491,7 @@ zeta_comparison_histogram <- function(df) {
     geom_hline(yintercept = 0, linetype = "dashed") +
     scale_fill_manual(values = color_scale) +
     theme_bw() +
-    set_theme
+    set_theme_FS1
   ggsave("plot/FS1/FS1_Zeta_plot.png", p, units = "in", width = 10,
          height = 5, dpi = 1200)
 }
@@ -495,7 +518,7 @@ wavelength_comparison_histogram <- function(df) {
     scale_fill_manual(values = color_scale) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.01), add = c(-500, 0))) +
     theme_bw() +
-    set_theme
+    set_theme_FS1
   ggsave("plot/FS1/FS1_Wavelength_plot.png", p, units = "in", width = 10,
          height = 5, dpi = 1200)
 }
@@ -683,180 +706,4 @@ scatter_plot <- function(df, LDA, t, c) {
   
   imagename = sprintf("plot/FS6-7/FS6-7_%s_%s.png", t, c)
   ggsave(imagename, p, units = "in", height = 6, width = 7, dpi = 1200)
-}
-
-
-
-# RData_generate ------------------------------
-
-
-ROC_data_load <- function(s, c){
-  # This function is used to read the raw ROC curve data in csv 
-  # form and assign column names to it.
-  #  
-  # Args:   
-  #   s: Abbreviation of species name corresponding to data.
-  #   c: The data correspond to microbial concentrations.
-  # 
-  # Returns:  
-  #   A list of ROC curve data for Single and Merged inputs at
-  #   specified concentrations of specified microorganisms.
-  
-  DIR_1 = sprintf("../Dimension reduction integrated ROC/data/Dichotomies_single/Dichotomies_single_%s_%s.csv",
-                  s, c)
-  DIR_3 = sprintf("../Dimension reduction integrated ROC/data/Dichotomies/Dichotomies_%s_%s.csv",
-                  s, c)
-  
-  ROC_1 <- read.csv(DIR_1, header = F)
-  ROC_3 <- read.csv(DIR_3, header = F)
-  
-  names(ROC_1) <- c("situation", "probability")
-  names(ROC_3) <- c("situation", "probability")
-  
-  return(list(ROC_1 = ROC_1, ROC_3 = ROC_3))
-}
-
-
-F1_barplot_data_load <- function(s, c) {
-  # This function is used to load the model F1 exponent under
-  # specified conditions into a dataframe.
-  #  
-  # Args:   
-  #   s: Abbreviation of species name corresponding to data.
-  #   c: The data correspond to microbial concentrations.
-  # 
-  # Returns:  
-  #   A processed dataframe containing data type (Single/Merged),
-  #   F1 index, and so on.
-  
-  DIR_1 <- sprintf("../Binary comparison bar chart/data/Single/Dichotomies_Single_%s_Accuracy.xlsx", s)
-  DIR_3 <- sprintf("../Binary comparison bar chart/data/Merged/Dichotomies_%s_Accuracy.xlsx", s)
-  
-  df_1 <- read_xlsx(DIR_1)
-  df_3 <- read_xlsx(DIR_3)
-  df_1 <- df_1[, c(1, 3, 6)]
-  df_3 <- df_3[, c(1, 3, 6)]
-  df_1[, 1] <- "Single"
-  df_3[, 1] <- "Merged"
-  df <- rbind(df_1, df_3)
-  df$number_of_pictures <- as.factor(df$number_of_pictures)
-  filtered_df = df %>% filter(concentration == c)
-  
-  return(filtered_df)
-}
-
-
-F1_multi_barplot_data_load <- function(model_type) {
-  # This function reads the data used to generate a
-  # multi-classification F1 score bar graph and extracts the
-  # number of images (1 is Single, 3 is Merged), corresponding
-  # concentration, and F1 score.
-  #  
-  # Args:   
-  #   model_type: The type of model, namely PCA+LDA tandem
-  #               dimension reduction model (PCA+LDA) or Random
-  #               forest model (RF).
-  # 
-  # Returns:  
-  #   A dataframe containing the number of images, the microbial
-  #   concentration, and the corresponding F1 score.
-  
-  DIR <- sprintf("../F1 bar chart/data/model_%s_evaluation.xlsx", model_type)
-  df_1<-as.data.frame(read.xlsx(DIR,sheet = 1))
-  df <- df_1[,c(1,2,5)]
-  df$number_of_pictures <- as.factor(df$number_of_pictures)
-  
-  return(df)
-}
-
-
-F1_Hierarchical_barplot_data_load <- function(model_type){
-  # Used to load F1 score data for hierarchical classification
-  # and Merged data comparison.
-  #  
-  # Args:   
-  #   model_type: The type of model, namely PCA+LDA tandem
-  #               dimension reduction model (PCA+LDA) or Random
-  #               forest model (RF).
-  # 
-  # Returns:  
-  #   A dataframe containing model type (PCA+LDA tandem dimension
-  #   Reduction Model (PCA+LDA)/ Random Forest Model (RF)), data
-  #   type (Merged/Hierarchical), microbial concentration, and F1
-  #   score.
-  
-  DIR_nine = sprintf("../F1 bar chart/data/nine_Accuracy_%s.csv", model_type)
-  DIR_order = sprintf("../F1 bar chart/data/order_Accuracy_%s.csv", model_type)
-  
-  df_nine <- as.data.frame(read.csv(DIR_nine))
-  df_order <- as.data.frame(read.csv(DIR_order))
-  
-  df_nine <- df_nine[, c(1, 4)]
-  df_nine <- df_nine %>% mutate(data_type = "Merged", .before = 1)
-  
-  df_order <- df_order[, c(1, 4)]
-  df_order <- df_order %>% mutate(data_type = "Hierarchical", .before = 1)
-  
-  df <- rbind(df_nine, df_order)
-  df <- df %>% mutate(Model_type = model_type, .before = 1)
-  
-  return(df)
-}
-
-
-bubble_plot_data_load <- function(data_type) {
-  # This function is used to save the precision and recall rates
-  # of the binary model into an RData file.
-  #  
-  # Args:   
-  #   data_type: Data type. Including Single and Merged.
-  # 
-  # Returns:  
-  #   A dataframe containing microbial species, corresponding
-  #   concentrations, Precision, and Recall.
-  for (s in species) {
-    file_DIR <- sprintf("../bubble plot/data/%s/Dichotomies_%s_%s_Accuracy.xlsx",
-                        data_type, data_type, s)
-    df <- read_xlsx(file_DIR)
-    df <- df[, c(3, 7, 5)]
-    df <- df %>% mutate(Species = s, .before = concentration)
-    Data <- case_when(s == "B.licheniformis" ~ df,
-                      TRUE ~ rbind(Data, df))
-  }
-  return(Data)
-}
-
-
-scatter_data_load <- function(DIR, type) {
-  # This function loads the csv file with coordinates and labels
-  # used to generate the LDA scatter plot, adds column names to it,
-  # and finally saves it to the RData file.
-  #  
-  # Args:   
-  #   DIR: DIR is the path to the csv file in the form of a string
-  #         containing placeholders.
-  #   type: The vector used to extract the specified file name. Including
-  #         9 classification problem (Single/Merged) and hierarchical 
-  #         classification problem (order/Bacillales/Enterobacteriales).
-  # 
-  # Returns:  
-  #   A list that holds all the extracted data in list form under the
-  # ` class problem (nine classification problem or hierarchical 
-  #   classification problem).
-  
-  save_scatter <- list()
-  
-  for (t in type) {
-    for (c in concentration) {
-      filename = sprintf(DIR, t, c)
-      df <- read.csv(file = filename)
-      names(df) <- c("label", "x", "y")
-      df$label <- as.character(df$label)
-      df_name <- sprintf("scatter_%s_%s", t, c)
-      data <- assign(df_name, df)
-      data <- c(data, name = df_name)
-      save_scatter[[df_name]] <- data
-    }
-  }
-  return(save_scatter)
 }

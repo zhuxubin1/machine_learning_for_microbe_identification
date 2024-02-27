@@ -6,10 +6,10 @@
 
 # Load dependencies ----------------------
 
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
-library(stringi)
+require(ggplot2)
+require(tidyverse)
+require(dplyr)
+require(stringi)
 source("toolbox.R")
 
 # Import Data ----------------------

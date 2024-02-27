@@ -1,15 +1,18 @@
 # Script name: Figure4.R
-# Purpose: Used to generate representational images required by Figure4.
+# Purpose: The script is used to generate a plot of the evaluation results of the
+#           multiple classification models in Figure 4, including F1 score bars
+#           using PCA+LDA tandem dimensionality reduction algorithm and random
+#           forest algorithm.
 # Author: Zhu Xubin
 # Date Created: 2024-02-17
 
 
 # Load dependencies ----------------------
 
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
-library(stringi)
+require(ggplot2)
+require(tidyverse)
+require(dplyr)
+require(stringi)
 source("toolbox.R")
 
 # Import Data ----------------------

@@ -1,4 +1,5 @@
 import glob
+import json
 import os
 import pickle
 
@@ -115,6 +116,22 @@ def load_model(model_dir):
     with open(model_dir, 'rb') as file:
         model = pickle.load(file)
     return model
+
+
+def load_param(param_dir):
+    """
+    This function loads the model parameters saved in the specified path through the load() function of
+    the json package.
+
+    Args:
+        param_dir: The path to save the model parameters.
+
+    Returns:
+        The model parameters are extracted from the specified path.
+    """
+    with open(param_dir, "r") as f:
+        params = json.load(f)
+    return params
 
 
 def create_table(table_path, column_names=None):

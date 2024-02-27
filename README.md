@@ -19,8 +19,8 @@ Introduction ...
 
 ## Software requirement
 
-  * R version: 4.2.3
-  * A list of some required R packages version:
+R version: 4.2.3
+A list of some required R packages version:
     * readxl 1.4.3
     * dplyr 1.0.10
     * stringi 1.7.8
@@ -46,7 +46,6 @@ Introduction ...
     * pandas~=2.1.1
     * matplotlib~=3.8.2
     * scikit-learn~=1.3.2
-    * Pillow~=10.0.1
     * scipy~=1.11.3
     * pyqtgraph~=0.13.3
     * PyQt6~=6.5.2

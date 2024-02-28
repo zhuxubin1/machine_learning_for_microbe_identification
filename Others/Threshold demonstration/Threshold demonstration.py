@@ -5,7 +5,7 @@ This script is used to demonstrate the result of using different grayscale value
 import cv2
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtWidgets import QWidget, QApplication, QSlider, QLabel, QVBoxLayout, QComboBox, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QApplication, QSlider, QLabel, QVBoxLayout, QComboBox, QHBoxLayout, QRadioButton
 import pyqtgraph as pg
 
 
@@ -60,6 +60,19 @@ class Example(QWidget):
         vbox_left.addWidget(self.label_pic)
         vbox_left.addStretch(1)
 
+        # chart type on the right
+        self.label_chart_type = QLabel("Chart Type ")
+        self.rb_line = QRadioButton("line")
+        self.rb_histogram = QRadioButton("histogram")
+        self.rb_line.setChecked(True)
+        self.rb_line.toggled.connect(self.initHistogram)
+        self.rb_histogram.toggled.connect(self.initHistogram)
+        self.hbox_chart_type = QHBoxLayout()
+        self.hbox_chart_type.addStretch(1)
+        self.hbox_chart_type.addWidget(self.label_chart_type)
+        self.hbox_chart_type.addWidget(self.rb_line)
+        self.hbox_chart_type.addWidget(self.rb_histogram)
+
         # line chart on the right
         pg.setConfigOptions(leftButtonPan=False)
         pg.setConfigOption('background', 'w')
@@ -67,9 +80,13 @@ class Example(QWidget):
         self.pw = pg.PlotWidget()
         self.plot_data = None
 
+        vbox_right = QVBoxLayout()
+        vbox_right.addLayout(self.hbox_chart_type)
+        vbox_right.addWidget(self.pw)
+
         hbox = QHBoxLayout()
         hbox.addLayout(vbox_left, 1)
-        hbox.addWidget(self.pw, 3)
+        hbox.addLayout(vbox_right, 3)
 
         self.initHistogram()
         self.update_pic()
@@ -77,7 +94,7 @@ class Example(QWidget):
 
     def update_pic(self):
         """
-        Update the picture according to the current selection of ComboBox
+        Update the picture according to the current selection of ComboBoxes
         """
         concentration = self.cb_concentration.currentText()
         diameter = self.cb_diameter.currentText()
@@ -89,12 +106,22 @@ class Example(QWidget):
 
     def initHistogram(self):
         """
-        Initialize the line chart
+        Initialize the line chart or histogram
         """
+        if self.plot_data is not None:
+            self.pw.removeItem(self.plot_data)
+
         self.pw.setLimits(xMin=0, yMin=0, xMax=256)
         hist = cv2.calcHist([self.pic], [0], None, [256], [0, 256]).ravel()
         hist = hist[1: 256]
-        self.plot_data = self.pw.plot(hist, fillLevel=0, brush=(0, 0, 255, 80))
+        if self.rb_line.isChecked():
+            self.plot_data = self.pw.plot(hist, fillLevel=0, brush=(0, 0, 255, 80))
+        else:  # self.rb_histogram.isChecked()
+            x = [i + 0.5 for i in range(256)]
+            self.plot_data = self.pw.plot(x, hist, stepMode="center", fillLevel=0, brush=(0, 0, 255, 80))
+
+        if self.slider.value() != 255:
+            self.thresholdChange(self.slider.value())
 
     def thresholdChange(self, value):
         """
@@ -113,9 +140,12 @@ class Example(QWidget):
         self.label_pic.setPixmap(pixmap)
 
         hist = cv2.calcHist([self.pic_copy], [0], None, [256], [0, 256]).ravel()
-        hist = hist[0: value + 1]
-        hist[0] = 0
-        self.plot_data.setData(hist)
+        hist = hist[1: value + 1]
+        if self.rb_line.isChecked():
+            self.plot_data.setData(hist)
+        else:  # self.rb_histogram.isChecked()
+            x = [i + 0.5 for i in range(0, value + 1)]
+            self.plot_data.setData(x, hist)
         self.pw.setLimits(xMin=0, yMin=0, xMax=value + 1)
 
 

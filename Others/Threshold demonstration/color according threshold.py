@@ -18,6 +18,7 @@ for concentration in ["10^4", "10^5", "10^6"]:
     fig, ax = plt.subplots(figsize=(8, 4))
     hist_color = ["#ff7f27"] * 225 + ["#0000ff"] * 31
     ax.bar(range(256), hist.ravel(), width=1, color=hist_color)
+    plt.axvline(x=225, color='black', linestyle="--")
     ax.set_xticks(ax.get_xticks().tolist() + [225])
     ax.set_xlim([0, 255.5])
     ax.set_xlabel('Gray Level')
